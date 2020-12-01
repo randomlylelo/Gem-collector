@@ -21,13 +21,34 @@ class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.image('black', 'game/assets/black.png');
+    this.load.image('green', 'game/assets/green.png');
+    this.load.image('red', 'game/assets/red.png');
+    this.load.image('yellow', 'game/assets/yellow.png');
   }
 
   create() {
-    this.add.image(400, 300, 'black');
+    const gems = ['black', 'green', 'red', 'yellow'];
+
+    const rows = 6;
+    const cols = 6;
+
+    let level = [[]];
+
+    for (let i = 0; i < rows; i++) {
+      level[i] = [];
+      for (let j = 0; j < cols; j++) {
+        // 0 - 3 (inclusive)
+        const number = Math.floor(Math.random() * 4);
+
+        // change the +100 to move the grid.
+        level[i][j] = this.add.image((64 * i)+32+100, (64 * j)+32+100, gems[number]);
+      }
+    }
+
+    console.log(level);
   }
 }
 
-config.scene = GameScene
+config.scene = GameScene;
 
 new Phaser.Game(config);
