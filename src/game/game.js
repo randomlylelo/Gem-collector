@@ -27,8 +27,8 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    level = this.makeGrid();
-    
+    const level = this.makeGrid();
+
   }
 
   makeGrid() {
