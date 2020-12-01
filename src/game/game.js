@@ -27,6 +27,11 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    level = this.makeGrid();
+    
+  }
+
+  makeGrid() {
     const gems = ['black', 'green', 'red', 'yellow'];
 
     const rows = 6;
@@ -45,7 +50,7 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    console.log(level);
+    return level
   }
 }
 
