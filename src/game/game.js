@@ -27,11 +27,6 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const level = this.makeGrid();
-
-  }
-
-  makeGrid() {
     const gems = ['black', 'green', 'red', 'yellow'];
 
     const rows = 6;
@@ -46,11 +41,13 @@ class GameScene extends Phaser.Scene {
         const number = Math.floor(Math.random() * 4);
 
         // change the +100 to move the grid.
-        level[i][j] = this.add.image((64 * i)+32+100, (64 * j)+32+100, gems[number]);
+        level[i][j] = this.add
+          .image(64 * i + 32 + 100, 64 * j + 32 + 100, gems[number])
+          .setInteractive();
+        this.input.setDraggable(level[i][j]);
       }
     }
 
-    return level
   }
 }
 
