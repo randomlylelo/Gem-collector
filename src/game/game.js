@@ -67,35 +67,72 @@ class GameScene extends Phaser.Scene {
       // x = col (x-axis, straight up)
       // y = row
 
-      const findDuplicates = (sprite) => {
+      // Deletes all nearby blocks with same color.
+      const findDuplicates = (sprite, prev) => {
+        if (sprite === null || sprite === undefined) {
+          return;
+        }
+
         const row = (sprite.x - gridDisplacement.x - 32) / 64;
         const col = (sprite.y - gridDisplacement.y - 32) / 64;
 
-        // Find all neighboring sprites with same color and call recursivly.
-    
-        if (level[row][col - 1] === undefined) {
-          level[row][col].sprite.destroy();
-          level[row][col].sprite = null;
-          console.log(level);
-          return;
-        }
-        // Just Check if one side is not defined^^
-        // TODO: ^^
-        // As long as one side of not defined then contiune with program... so wrap everything in if loop.
+        // default to -1, -1 aka no prev.
+        const checkPrev = (s, p = {x: -1, y: -1}) => {
+          return s.xCord === p.x && s.yCord === p.y;
+        };
 
         // Check Top Color
-        console.log(col);
-        console.log(level);
-        if (level[row][col].color === level[row][col - 1].color) {
-          findDuplicates(level[row][col - 1].sprite);
+        // If Not a corner piece
+        if (level[row][col - 1]) {
+          // Check if it is the same as prev piece && same color
+          if (
+            !checkPrev(level[row][col - 1], prev) &&
+            level[row][col].color === level[row][col - 1].color
+          ) {
+            findDuplicates(level[row][col - 1].sprite, { x: level[row][col].xCord, y: level[row][col].yCord});
+          }
+        }
+
+        // Check Bottom Color
+        if (level[row][col + 1]) {
+          // Check if it is the same as prev piece && same color
+          if (
+            !checkPrev(level[row][col + 1], prev) &&
+            level[row][col].color === level[row][col + 1].color
+          ) {
+            findDuplicates(level[row][col + 1].sprite, { x: level[row][col].xCord, y: level[row][col].yCord});
+          }
+        }
+
+        // Check Left Color
+        if (level[row - 1]) {
+          // Check if it is the same as prev piece && same color
+          if (
+            !checkPrev(level[row - 1][col], prev) &&
+            level[row][col].color === level[row - 1][col].color
+          ) {
+            findDuplicates(level[row - 1][col].sprite, { x: level[row][col].xCord, y: level[row][col].yCord});
+          }
+        }
+
+        // Check Right Color 
+        if (level[row + 1]) {
+          // Check if it is the same as prev piece && same color
+          if (
+            !checkPrev(level[row + 1][col], prev) &&
+            level[row][col].color === level[row + 1][col].color
+          ) {
+            findDuplicates(level[row + 1][col].sprite, { x: level[row][col].xCord, y: level[row][col].yCord});
+          }
         }
 
         level[row][col].sprite.destroy();
         level[row][col].sprite = null;
-        console.log(level);
       };
 
       findDuplicates(gameObject[0]);
+
+      // Stick Block Falling Down code here.
 
       // if (gameObject[0]) {
       //   gameObject[0].destroy();
