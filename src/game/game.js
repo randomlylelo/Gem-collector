@@ -26,14 +26,14 @@ class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('black', 'game/assets/black.png');
+    this.load.image('blue', 'game/assets/blue.png');
     this.load.image('green', 'game/assets/green.png');
     this.load.image('red', 'game/assets/red.png');
-    this.load.image('yellow', 'game/assets/yellow.png');
+    this.load.image('orange', 'game/assets/orange.png');
   }
 
   create() {
-    const gems = ['black', 'green', 'red', 'yellow'];
+    const gems = ['blue', 'green', 'red', 'orange'];
 
     const rows = 6;
     const cols = 6;
@@ -181,8 +181,6 @@ class GameScene extends Phaser.Scene {
                 level[i][j].color = null;
 
                 level[i][lowestIndex].sprite.y = level[i][lowestIndex].yCord;
-
-                console.log(level);
               }
             }
           }
