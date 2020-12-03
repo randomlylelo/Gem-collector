@@ -66,6 +66,7 @@ class GameScene extends Phaser.Scene {
     this.input.on('pointerdown', (pointer, gameObject) => {
       // x = col (x-axis, straight up)
       // y = row
+      let destroyed = 0;
 
       // Deletes all nearby blocks with same color.
       const findDuplicates = (sprite, prev) => {
@@ -150,16 +151,14 @@ class GameScene extends Phaser.Scene {
           }
         }
 
-        console.log(level[row][col])
-
         level[row][col].sprite.destroy();
         level[row][col].sprite = null;
-
-        return prev;
+        destroyed++;
       };
 
-      const destroyed = findDuplicates(gameObject[0], []);
+      findDuplicates(gameObject[0], []);
       console.log(destroyed);
+      
 
       // Stick Block Falling Down code here.
 
