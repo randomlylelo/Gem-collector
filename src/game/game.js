@@ -38,8 +38,12 @@ class GameScene extends Phaser.Scene {
     const rows = 6;
     const cols = 6;
 
+    let score = 0;
+    let scoreText = '';
+
     let level = [[]];
 
+    // Set up field
     for (let i = 0; i < rows; i++) {
       level[i] = [];
       for (let j = 0; j < cols; j++) {
@@ -59,6 +63,7 @@ class GameScene extends Phaser.Scene {
       }
     }
 
+    // On click of gem
     this.input.on('pointerdown', (pointer, gameObject) => {
       // x = col (x-axis, straight up)
       // y = row
@@ -70,10 +75,11 @@ class GameScene extends Phaser.Scene {
           return;
         }
 
+        // To get a number bt 0 - 5 to be used in the levels variable.
         const row = (sprite.x - gridDisplacement.x - 32) / 64;
         const col = (sprite.y - gridDisplacement.y - 32) / 64;
 
-        // default to -1, -1 aka no prev.
+        // Function to check if gem is already included
         const checkPrev = (s, p) => {
           for (let i = 0; i < p.length; i++) {
             if (p[i]) {
@@ -94,10 +100,12 @@ class GameScene extends Phaser.Scene {
             !checkPrev(level[row][col - 1], prev) &&
             level[row][col].color === level[row][col - 1].color
           ) {
+            // Add it to previous array.
             prev.push({
               x: level[row][col].xCord,
               y: level[row][col].yCord,
             });
+            // Recursively call the function on the new gem
             findDuplicates(level[row][col - 1].sprite, prev);
           }
         }
@@ -109,10 +117,12 @@ class GameScene extends Phaser.Scene {
             !checkPrev(level[row][col + 1], prev) &&
             level[row][col].color === level[row][col + 1].color
           ) {
+            // Add it to previous array.
             prev.push({
               x: level[row][col].xCord,
               y: level[row][col].yCord,
             });
+            // Recursively call the function on the new gem
             findDuplicates(level[row][col + 1].sprite, prev);
           }
         }
@@ -147,6 +157,7 @@ class GameScene extends Phaser.Scene {
           }
         }
 
+        // Destroy gem and log it.
         level[row][col].sprite.destroy();
         level[row][col].sprite = null;
         destroyed++;
@@ -164,6 +175,8 @@ class GameScene extends Phaser.Scene {
               let h = j;
               let lowestIndex = 6;
               let lowest = false;
+              // Should be for loop but oh well.
+              // Check if bottom gem is empty, look for most bottomest space
               while (h < 6) {
                 if (level[i][h].sprite === null) {
                   if (j !== h) {
@@ -173,13 +186,15 @@ class GameScene extends Phaser.Scene {
                 }
                 h++;
               }
-              // replace
+
+              // replace bottomest space with top space
               if (lowest) {
                 level[i][lowestIndex].sprite = level[i][j].sprite;
                 level[i][lowestIndex].color = level[i][j].color;
                 level[i][j].sprite = null;
                 level[i][j].color = null;
 
+                // Add animation
                 this.tweens.add({
                   targets: level[i][lowestIndex].sprite,
                   y: level[i][lowestIndex].yCord,
@@ -192,14 +207,18 @@ class GameScene extends Phaser.Scene {
         }
       };
 
+      // Look for similar gems around. Initial funciton call.
       findDuplicates(gameObject[0], []);
-      console.log(destroyed);
-
       if (destroyed === 0) {
         return;
       }
 
+      // Update gem field.
       fallDown();
+
+      // Update scoreboard.
+
+      
 
       // Check if everything is gone via forloops. If so, reset.
     });
