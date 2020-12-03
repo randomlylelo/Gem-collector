@@ -8,7 +8,7 @@ const gridDisplacement = {
 
 const config = {
   title: 'FBLA',
-  width: 800,
+  width: 600,
   height: 600,
   parent: 'game',
   physics: {
@@ -267,6 +267,7 @@ class GameScene extends Phaser.Scene {
         if (score >= reqToLevelup) {
           if (level === 3) {
             // Show you win screen
+
 
             // Reset game.
             level = 1;
