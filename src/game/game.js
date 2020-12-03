@@ -65,27 +65,32 @@ class GameScene extends Phaser.Scene {
       { fontSize: '32px', fill: '#fff' }
     );
 
-    let map = [[]];
+    const setUpMap = () => {
+      // Set up field
+      let map = [[]];
+      for (let i = 0; i < rows; i++) {
+        map[i] = [];
+        for (let j = 0; j < cols; j++) {
+          const xCord = 64 * i + 32 + gridDisplacement.x;
+          const yCord = 64 * j + 32 + gridDisplacement.y;
 
-    // Set up field
-    for (let i = 0; i < rows; i++) {
-      map[i] = [];
-      for (let j = 0; j < cols; j++) {
-        const xCord = 64 * i + 32 + gridDisplacement.x;
-        const yCord = 64 * j + 32 + gridDisplacement.y;
+          // 0 - 3 (inclusive)
+          const number = Math.floor(Math.random() * 4);
 
-        // 0 - 3 (inclusive)
-        const number = Math.floor(Math.random() * 4);
+          const sprite = this.add
+            .sprite(xCord, yCord, gems[number])
+            .setInteractive();
 
-        const sprite = this.add
-          .sprite(xCord, yCord, gems[number])
-          .setInteractive();
+          this.input.setDraggable(sprite);
 
-        this.input.setDraggable(sprite);
-
-        map[i][j] = { xCord, yCord, color: gems[number], sprite };
+          map[i][j] = { xCord, yCord, color: gems[number], sprite };
+        }
       }
-    }
+
+      return map;
+    };
+
+    let map = setUpMap();
 
     // On click of gem
     this.input.on('pointerdown', (pointer, gameObject) => {
@@ -262,12 +267,22 @@ class GameScene extends Phaser.Scene {
         if (score >= reqToLevelup) {
           if (level === 3) {
             // Show you win screen
+
+            // Reset game.
+            level = 1;
+            levelText.setText(`Level ${level}`);
+            lives = 5;
+            livesText.setText(`Lives ${lives}`);
+            score = 0;
+            scoreText.setText(`Score ${score}`);
+            map = setUpMap();
           } else {
             // Show level up screen.
             level++;
             levelText.setText(`Level ${level}`);
 
             // Reset map.
+            map = setUpMap();
           }
         } else {
           if (lives === 0) {
