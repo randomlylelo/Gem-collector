@@ -46,10 +46,9 @@ class GameScene extends Phaser.Scene {
       { fontSize: '32px', fill: '#fff' }
     );
 
-
     let score = 0;
     let scoreText = this.add.text(
-      gridDisplacement.x, 
+      gridDisplacement.x,
       gridDisplacement.y - 48, // 100 - (32+16)
       'Current Score: ' + score,
       { fontSize: '32px', fill: '#fff' }
@@ -79,165 +78,170 @@ class GameScene extends Phaser.Scene {
 
     // On click of gem
     this.input.on('pointerdown', (pointer, gameObject) => {
-      // x = col (x-axis, straight up)
-      // y = row
-      let destroyed = 0;
+      try {
+        // x = col (x-axis, straight up)
+        // y = row
+        let destroyed = 0;
 
-      // Deletes all nearby blocks with same color.
-      const findDuplicates = (sprite, prev) => {
-        if (sprite === null || sprite === undefined) {
+        // Deletes all nearby blocks with same color.
+        const findDuplicates = (sprite, prev) => {
+          if (sprite === null || sprite === undefined) {
+            return;
+          }
+
+          // To get a number bt 0 - 5 to be used in the maps variable.
+          const row = (sprite.x - gridDisplacement.x - 32) / 64;
+          const col = (sprite.y - gridDisplacement.y - 32) / 64;
+
+          // Function to check if gem is already included
+          const checkPrev = (s, p) => {
+            for (let i = 0; i < p.length; i++) {
+              if (p[i]) {
+                if (s.xCord === p[i].x && s.yCord === p[i].y) {
+                  return true;
+                }
+              }
+            }
+
+            return false;
+          };
+
+          // Check Top Color
+          // If Not a corner piece
+          if (map[row][col - 1]) {
+            // Check if it is the same as prev piece && same color
+            if (
+              !checkPrev(map[row][col - 1], prev) &&
+              map[row][col].color === map[row][col - 1].color
+            ) {
+              // Add it to previous array.
+              prev.push({
+                x: map[row][col].xCord,
+                y: map[row][col].yCord,
+              });
+              // Recursively call the function on the new gem
+              findDuplicates(map[row][col - 1].sprite, prev);
+            }
+          }
+
+          // Check Bottom Color
+          if (map[row][col + 1]) {
+            // Check if it is the same as prev piece && same color
+            if (
+              !checkPrev(map[row][col + 1], prev) &&
+              map[row][col].color === map[row][col + 1].color
+            ) {
+              // Add it to previous array.
+              prev.push({
+                x: map[row][col].xCord,
+                y: map[row][col].yCord,
+              });
+              // Recursively call the function on the new gem
+              findDuplicates(map[row][col + 1].sprite, prev);
+            }
+          }
+
+          // Check Left Color
+          if (map[row - 1]) {
+            // Check if it is the same as prev piece && same color
+            if (
+              !checkPrev(map[row - 1][col], prev) &&
+              map[row][col].color === map[row - 1][col].color
+            ) {
+              prev.push({
+                x: map[row][col].xCord,
+                y: map[row][col].yCord,
+              });
+              findDuplicates(map[row - 1][col].sprite, prev);
+            }
+          }
+
+          // Check Right Color
+          if (map[row + 1]) {
+            // Check if it is the same as prev piece && same color
+            if (
+              !checkPrev(map[row + 1][col], prev) &&
+              map[row][col].color === map[row + 1][col].color
+            ) {
+              prev.push({
+                x: map[row][col].xCord,
+                y: map[row][col].yCord,
+              });
+              findDuplicates(map[row + 1][col].sprite, prev);
+            }
+          }
+
+          // Destroy gem and log it.
+          map[row][col].sprite.destroy();
+          map[row][col].sprite = null;
+          destroyed++;
+        };
+
+        // Stick Block Falling Down code here.
+        // Start at first col, x = 0;
+        // Check bottom most row first, if it has a block then go up, if it doesn't remember and check block above. Keep doing until checks last row.
+        const fallDown = () => {
+          for (let i = 0; i < cols; i++) {
+            // Start at 5 aka the bottommost block.
+            for (let j = rows - 2; j >= 0; j--) {
+              // check until index reaches 5 to move the block to the most bottom.
+              if (map[i][j].sprite !== null) {
+                let h = j;
+                let lowestIndex = 6;
+                let lowest = false;
+                // Should be for loop but oh well.
+                // Check if bottom gem is empty, look for most bottomest space
+                while (h < 6) {
+                  if (map[i][h].sprite === null) {
+                    if (j !== h) {
+                      lowest = true;
+                      lowestIndex = h;
+                    }
+                  }
+                  h++;
+                }
+
+                // replace bottomest space with top space
+                if (lowest) {
+                  map[i][lowestIndex].sprite = map[i][j].sprite;
+                  map[i][lowestIndex].color = map[i][j].color;
+                  map[i][j].sprite = null;
+                  map[i][j].color = null;
+
+                  // Add animation
+                  this.tweens.add({
+                    targets: map[i][lowestIndex].sprite,
+                    y: map[i][lowestIndex].yCord,
+                    duration: 250,
+                    ease: 'Sine.easeIn',
+                  });
+                }
+              }
+            }
+          }
+        };
+
+        // Look for similar gems around. Initial funciton call.
+        findDuplicates(gameObject[0], []);
+        if (destroyed === 0) {
           return;
         }
 
-        // To get a number bt 0 - 5 to be used in the maps variable.
-        const row = (sprite.x - gridDisplacement.x - 32) / 64;
-        const col = (sprite.y - gridDisplacement.y - 32) / 64;
+        // Update gem field.
+        fallDown();
 
-        // Function to check if gem is already included
-        const checkPrev = (s, p) => {
-          for (let i = 0; i < p.length; i++) {
-            if (p[i]) {
-              if (s.xCord === p[i].x && s.yCord === p[i].y) {
-                return true;
-              }
-            }
-          }
+        // Update scoreboard.
+        // Amt Destroyed*100*multiplier
+        // Todo: Fix Multiplier
+        score += destroyed * 100 * 1.3;
+        scoreText.setText(`Score ${score}`);
 
-          return false;
-        };
-
-        // Check Top Color
-        // If Not a corner piece
-        if (map[row][col - 1]) {
-          // Check if it is the same as prev piece && same color
-          if (
-            !checkPrev(map[row][col - 1], prev) &&
-            map[row][col].color === map[row][col - 1].color
-          ) {
-            // Add it to previous array.
-            prev.push({
-              x: map[row][col].xCord,
-              y: map[row][col].yCord,
-            });
-            // Recursively call the function on the new gem
-            findDuplicates(map[row][col - 1].sprite, prev);
-          }
-        }
-
-        // Check Bottom Color
-        if (map[row][col + 1]) {
-          // Check if it is the same as prev piece && same color
-          if (
-            !checkPrev(map[row][col + 1], prev) &&
-            map[row][col].color === map[row][col + 1].color
-          ) {
-            // Add it to previous array.
-            prev.push({
-              x: map[row][col].xCord,
-              y: map[row][col].yCord,
-            });
-            // Recursively call the function on the new gem
-            findDuplicates(map[row][col + 1].sprite, prev);
-          }
-        }
-
-        // Check Left Color
-        if (map[row - 1]) {
-          // Check if it is the same as prev piece && same color
-          if (
-            !checkPrev(map[row - 1][col], prev) &&
-            map[row][col].color === map[row - 1][col].color
-          ) {
-            prev.push({
-              x: map[row][col].xCord,
-              y: map[row][col].yCord,
-            });
-            findDuplicates(map[row - 1][col].sprite, prev);
-          }
-        }
-
-        // Check Right Color
-        if (map[row + 1]) {
-          // Check if it is the same as prev piece && same color
-          if (
-            !checkPrev(map[row + 1][col], prev) &&
-            map[row][col].color === map[row + 1][col].color
-          ) {
-            prev.push({
-              x: map[row][col].xCord,
-              y: map[row][col].yCord,
-            });
-            findDuplicates(map[row + 1][col].sprite, prev);
-          }
-        }
-
-        // Destroy gem and log it.
-        map[row][col].sprite.destroy();
-        map[row][col].sprite = null;
-        destroyed++;
-      };
-
-      // Stick Block Falling Down code here.
-      // Start at first col, x = 0;
-      // Check bottom most row first, if it has a block then go up, if it doesn't remember and check block above. Keep doing until checks last row.
-      const fallDown = () => {
-        for (let i = 0; i < cols; i++) {
-          // Start at 5 aka the bottommost block.
-          for (let j = rows - 2; j >= 0; j--) {
-            // check until index reaches 5 to move the block to the most bottom.
-            if (map[i][j].sprite !== null) {
-              let h = j;
-              let lowestIndex = 6;
-              let lowest = false;
-              // Should be for loop but oh well.
-              // Check if bottom gem is empty, look for most bottomest space
-              while (h < 6) {
-                if (map[i][h].sprite === null) {
-                  if (j !== h) {
-                    lowest = true;
-                    lowestIndex = h;
-                  }
-                }
-                h++;
-              }
-
-              // replace bottomest space with top space
-              if (lowest) {
-                map[i][lowestIndex].sprite = map[i][j].sprite;
-                map[i][lowestIndex].color = map[i][j].color;
-                map[i][j].sprite = null;
-                map[i][j].color = null;
-
-                // Add animation
-                this.tweens.add({
-                  targets: map[i][lowestIndex].sprite,
-                  y: map[i][lowestIndex].yCord,
-                  duration: 250,
-                  ease: 'Sine.easeIn',
-                });
-              }
-            }
-          }
-        }
-      };
-
-      // Look for similar gems around. Initial funciton call.
-      findDuplicates(gameObject[0], []);
-      if (destroyed === 0) {
-        return;
+        // Check if everything is gone via forloops. If so, reset.
+        // Increase the level count if score is high enough
+      } catch (e) {
+        // Fix errors later.
+        console.log(e);
       }
-
-      // Update gem field.
-      fallDown();
-
-      // Update scoreboard.
-      // Amt Destroyed*100*multiplier
-      // Todo: Fix Multiplier
-      score += destroyed*100*1.3;
-      scoreText.setText(`Score ${score}`)
-
-      // Check if everything is gone via forloops. If so, reset.
-      // Increase the level count if score is high enough
     });
   }
 }
