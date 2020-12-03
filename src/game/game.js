@@ -38,14 +38,28 @@ class GameScene extends Phaser.Scene {
     const rows = 6;
     const cols = 6;
 
-    let score = 0;
-    let scoreText = '';
+    let level = 1;
+    let levelText = this.add.text(
+      gridDisplacement.x,
+      gridDisplacement.y - 80, // 100 - (32+16+32)
+      'Level: ' + level,
+      { fontSize: '32px', fill: '#fff' }
+    );
 
-    let level = [[]];
+
+    let score = 0;
+    let scoreText = this.add.text(
+      gridDisplacement.x, 
+      gridDisplacement.y - 48, // 100 - (32+16)
+      'Current Score: ' + score,
+      { fontSize: '32px', fill: '#fff' }
+    );
+
+    let map = [[]];
 
     // Set up field
     for (let i = 0; i < rows; i++) {
-      level[i] = [];
+      map[i] = [];
       for (let j = 0; j < cols; j++) {
         const xCord = 64 * i + 32 + gridDisplacement.x;
         const yCord = 64 * j + 32 + gridDisplacement.y;
@@ -59,7 +73,7 @@ class GameScene extends Phaser.Scene {
 
         this.input.setDraggable(sprite);
 
-        level[i][j] = { xCord, yCord, color: gems[number], sprite };
+        map[i][j] = { xCord, yCord, color: gems[number], sprite };
       }
     }
 
@@ -75,7 +89,7 @@ class GameScene extends Phaser.Scene {
           return;
         }
 
-        // To get a number bt 0 - 5 to be used in the levels variable.
+        // To get a number bt 0 - 5 to be used in the maps variable.
         const row = (sprite.x - gridDisplacement.x - 32) / 64;
         const col = (sprite.y - gridDisplacement.y - 32) / 64;
 
@@ -94,72 +108,72 @@ class GameScene extends Phaser.Scene {
 
         // Check Top Color
         // If Not a corner piece
-        if (level[row][col - 1]) {
+        if (map[row][col - 1]) {
           // Check if it is the same as prev piece && same color
           if (
-            !checkPrev(level[row][col - 1], prev) &&
-            level[row][col].color === level[row][col - 1].color
+            !checkPrev(map[row][col - 1], prev) &&
+            map[row][col].color === map[row][col - 1].color
           ) {
             // Add it to previous array.
             prev.push({
-              x: level[row][col].xCord,
-              y: level[row][col].yCord,
+              x: map[row][col].xCord,
+              y: map[row][col].yCord,
             });
             // Recursively call the function on the new gem
-            findDuplicates(level[row][col - 1].sprite, prev);
+            findDuplicates(map[row][col - 1].sprite, prev);
           }
         }
 
         // Check Bottom Color
-        if (level[row][col + 1]) {
+        if (map[row][col + 1]) {
           // Check if it is the same as prev piece && same color
           if (
-            !checkPrev(level[row][col + 1], prev) &&
-            level[row][col].color === level[row][col + 1].color
+            !checkPrev(map[row][col + 1], prev) &&
+            map[row][col].color === map[row][col + 1].color
           ) {
             // Add it to previous array.
             prev.push({
-              x: level[row][col].xCord,
-              y: level[row][col].yCord,
+              x: map[row][col].xCord,
+              y: map[row][col].yCord,
             });
             // Recursively call the function on the new gem
-            findDuplicates(level[row][col + 1].sprite, prev);
+            findDuplicates(map[row][col + 1].sprite, prev);
           }
         }
 
         // Check Left Color
-        if (level[row - 1]) {
+        if (map[row - 1]) {
           // Check if it is the same as prev piece && same color
           if (
-            !checkPrev(level[row - 1][col], prev) &&
-            level[row][col].color === level[row - 1][col].color
+            !checkPrev(map[row - 1][col], prev) &&
+            map[row][col].color === map[row - 1][col].color
           ) {
             prev.push({
-              x: level[row][col].xCord,
-              y: level[row][col].yCord,
+              x: map[row][col].xCord,
+              y: map[row][col].yCord,
             });
-            findDuplicates(level[row - 1][col].sprite, prev);
+            findDuplicates(map[row - 1][col].sprite, prev);
           }
         }
 
         // Check Right Color
-        if (level[row + 1]) {
+        if (map[row + 1]) {
           // Check if it is the same as prev piece && same color
           if (
-            !checkPrev(level[row + 1][col], prev) &&
-            level[row][col].color === level[row + 1][col].color
+            !checkPrev(map[row + 1][col], prev) &&
+            map[row][col].color === map[row + 1][col].color
           ) {
             prev.push({
-              x: level[row][col].xCord,
-              y: level[row][col].yCord,
+              x: map[row][col].xCord,
+              y: map[row][col].yCord,
             });
-            findDuplicates(level[row + 1][col].sprite, prev);
+            findDuplicates(map[row + 1][col].sprite, prev);
           }
         }
 
         // Destroy gem and log it.
-        level[row][col].sprite.destroy();
-        level[row][col].sprite = null;
+        map[row][col].sprite.destroy();
+        map[row][col].sprite = null;
         destroyed++;
       };
 
@@ -171,14 +185,14 @@ class GameScene extends Phaser.Scene {
           // Start at 5 aka the bottommost block.
           for (let j = rows - 2; j >= 0; j--) {
             // check until index reaches 5 to move the block to the most bottom.
-            if (level[i][j].sprite !== null) {
+            if (map[i][j].sprite !== null) {
               let h = j;
               let lowestIndex = 6;
               let lowest = false;
               // Should be for loop but oh well.
               // Check if bottom gem is empty, look for most bottomest space
               while (h < 6) {
-                if (level[i][h].sprite === null) {
+                if (map[i][h].sprite === null) {
                   if (j !== h) {
                     lowest = true;
                     lowestIndex = h;
@@ -189,15 +203,15 @@ class GameScene extends Phaser.Scene {
 
               // replace bottomest space with top space
               if (lowest) {
-                level[i][lowestIndex].sprite = level[i][j].sprite;
-                level[i][lowestIndex].color = level[i][j].color;
-                level[i][j].sprite = null;
-                level[i][j].color = null;
+                map[i][lowestIndex].sprite = map[i][j].sprite;
+                map[i][lowestIndex].color = map[i][j].color;
+                map[i][j].sprite = null;
+                map[i][j].color = null;
 
                 // Add animation
                 this.tweens.add({
-                  targets: level[i][lowestIndex].sprite,
-                  y: level[i][lowestIndex].yCord,
+                  targets: map[i][lowestIndex].sprite,
+                  y: map[i][lowestIndex].yCord,
                   duration: 250,
                   ease: 'Sine.easeIn',
                 });
@@ -217,10 +231,13 @@ class GameScene extends Phaser.Scene {
       fallDown();
 
       // Update scoreboard.
-
-      
+      // Amt Destroyed*100*multiplier
+      // Todo: Fix Multiplier
+      score += destroyed*100*1.3;
+      scoreText.setText(`Score ${score}`)
 
       // Check if everything is gone via forloops. If so, reset.
+      // Increase the level count if score is high enough
     });
   }
 }
