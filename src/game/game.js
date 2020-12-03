@@ -180,7 +180,12 @@ class GameScene extends Phaser.Scene {
                 level[i][j].sprite = null;
                 level[i][j].color = null;
 
-                level[i][lowestIndex].sprite.y = level[i][lowestIndex].yCord;
+                this.tweens.add({
+                  targets: level[i][lowestIndex].sprite,
+                  y: level[i][lowestIndex].yCord,
+                  duration: 250,
+                  ease: 'Sine.easeIn',
+                });
               }
             }
           }
@@ -195,6 +200,8 @@ class GameScene extends Phaser.Scene {
       }
 
       fallDown();
+
+      // Check if everything is gone via forloops. If so, reset.
     });
   }
 }
