@@ -42,15 +42,26 @@ class GameScene extends Phaser.Scene {
     let levelText = this.add.text(
       gridDisplacement.x,
       gridDisplacement.y - 80, // 100 - (32+16+32)
-      'Level: ' + level,
-      { fontSize: '32px', fill: '#fff' }
+      `Level ${level}`,
+      {
+        fontSize: '32px',
+        fill: '#fff',
+      }
     );
 
     let score = 0;
     let scoreText = this.add.text(
       gridDisplacement.x,
       gridDisplacement.y - 48, // 100 - (32+16)
-      'Current Score: ' + score,
+      `Score: ${score}`,
+      { fontSize: '32px', fill: '#fff' }
+    );
+
+    let lives = 5;
+    let livesText = this.add.text(
+      gridDisplacement.x + 225,
+      gridDisplacement.y - 80, // 100 - (32+16+32)
+      `Lives: ${lives}`,
       { fontSize: '32px', fill: '#fff' }
     );
 
@@ -236,8 +247,39 @@ class GameScene extends Phaser.Scene {
         score += destroyed * 100 * 1.3;
         scoreText.setText(`Score ${score}`);
 
-        // Check if everything is gone via forloops. If so, reset.
-        // Increase the level count if score is high enough
+        // Check if there are still gems on the screen
+        for (let i = 0; i < rows; i++) {
+          for (let j = 0; j < cols; j++) {
+            // If there are still gems then return;
+            if (map[i][j].sprite !== null) {
+              return;
+            }
+          }
+        }
+
+        // Add req to level up. If they get enough they lose a life & reset level.
+        const reqToLevelup = level * 2 + 1000;
+        if (score >= reqToLevelup) {
+          if (level === 3) {
+            // Show you win screen
+          } else {
+            // Show level up screen.
+            level++;
+            levelText.setText(`Level ${level}`);
+
+            // Reset map.
+          }
+        } else {
+          if (lives === 0) {
+            // Game over.
+          } else {
+            // Show you lost screen.
+            lives--;
+            livesText.setText(`Lives ${lives}`);
+          }
+        }
+
+        // Show congrats & level up screen
       } catch (e) {
         // Fix errors later.
         console.log(e);
