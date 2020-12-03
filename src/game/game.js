@@ -43,18 +43,14 @@ class GameScene extends Phaser.Scene {
     for (let i = 0; i < rows; i++) {
       level[i] = [];
       for (let j = 0; j < cols; j++) {
-        const xCord = 64 * i + 32;
-        const yCord = 64 * j + 32;
+        const xCord = 64 * i + 32 + gridDisplacement.x;
+        const yCord = 64 * j + 32 + gridDisplacement.y;
 
         // 0 - 3 (inclusive)
         const number = Math.floor(Math.random() * 4);
 
         const sprite = this.add
-          .sprite(
-            xCord + gridDisplacement.x,
-            yCord + gridDisplacement.y,
-            gems[number]
-          )
+          .sprite(xCord, yCord, gems[number])
           .setInteractive();
 
         this.input.setDraggable(sprite);
@@ -156,15 +152,51 @@ class GameScene extends Phaser.Scene {
         destroyed++;
       };
 
+      // Stick Block Falling Down code here.
+      // Start at first col, x = 0;
+      // Check bottom most row first, if it has a block then go up, if it doesn't remember and check block above. Keep doing until checks last row.
+      const fallDown = () => {
+        for (let i = 0; i < cols; i++) {
+          // Start at 5 aka the bottommost block.
+          for (let j = rows - 2; j >= 0; j--) {
+            // check until index reaches 5 to move the block to the most bottom.
+            if (level[i][j].sprite !== null) {
+              let h = j;
+              let lowestIndex = 6;
+              let lowest = false;
+              while (h < 6) {
+                if (level[i][h].sprite === null) {
+                  if (j !== h) {
+                    lowest = true;
+                    lowestIndex = h;
+                  }
+                }
+                h++;
+              }
+              // replace
+              if (lowest) {
+                level[i][lowestIndex].sprite = level[i][j].sprite;
+                level[i][lowestIndex].color = level[i][j].color;
+                level[i][j].sprite = null;
+                level[i][j].color = null;
+
+                level[i][lowestIndex].sprite.y = level[i][lowestIndex].yCord;
+
+                console.log(level);
+              }
+            }
+          }
+        }
+      };
+
       findDuplicates(gameObject[0], []);
       console.log(destroyed);
-      
 
-      // Stick Block Falling Down code here.
+      if (destroyed === 0) {
+        return;
+      }
 
-      // if (gameObject[0]) {
-      //   gameObject[0].destroy();
-      // }
+      fallDown();
     });
   }
 }
