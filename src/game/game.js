@@ -44,7 +44,7 @@ class GameScene extends Phaser.Scene {
     let popupItems;
 
     let leaderboard =
-      'Leaderboards (not ranked):\nLeo: 45065\nLuis: 30493\nGianni: 34456';
+      'Leaderboards (not ranked):\nLeo: 687\nLuis: 706\nGianni: 674';
 
     const rows = 6;
     const cols = 6;
@@ -129,7 +129,7 @@ class GameScene extends Phaser.Scene {
       return [renderT, dialog, text, button];
     };
     popup = true;
-    popupItems = screen('Welcome to ');
+    popupItems = screen('Welcome to Gem Collector!\nClick to break gems.\nGems will break the same\ncolor gems around it.\nTry to create multiple combos\nof gems to get the most points!\nHave Fun!');
 
     const setUpMap = () => {
       // Set up field
@@ -324,7 +324,7 @@ class GameScene extends Phaser.Scene {
         // Update scoreboard.
         // Amt Destroyed*100*multiplier
         // Todo: Fix Multiplier
-        score += destroyed * 100 * 1.3;
+        score += Math.floor(Math.pow(1.5, destroyed)*destroyed);
         scoreText.setText(`Score ${score}`);
 
         // Check if there are still gems on the screen
@@ -339,7 +339,7 @@ class GameScene extends Phaser.Scene {
 
         // Add req to level up. If they get enough they lose a life & reset level.
         // TODO: Fix req to levelup.
-        const reqToLevelup = level * 2 + 100;
+        const reqToLevelup = level * 10 + 100;
         if (score >= reqToLevelup) {
           if (level === 3) {
             popup = true;
