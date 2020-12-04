@@ -43,7 +43,8 @@ class GameScene extends Phaser.Scene {
     let popup = false;
     let popupItems;
 
-    let leaderboard = "Leaderboards (not ranked):\nLeo: 45065\nLuis: 230493\nGianni: 344356";
+    let leaderboard =
+      'Leaderboards (not ranked):\nLeo: 45065\nLuis: 30493\nGianni: 34456';
 
     const rows = 6;
     const cols = 6;
@@ -74,6 +75,61 @@ class GameScene extends Phaser.Scene {
       `Lives: ${lives}`,
       { fontSize: '32px', fill: '#fff' }
     );
+
+    const screen = (message) => {
+      let renderT = this.add.renderTexture(
+        0,
+        0,
+        this.cameras.main.width,
+        this.cameras.main.height
+      );
+      renderT.alpha = 0.7;
+      renderT.depth = 1;
+
+      let dialog = this.add.image(
+        this.cameras.main.width / 2,
+        this.cameras.main.height / 2,
+        'background'
+      );
+      dialog.depth = 2;
+      dialog.alpha = 0;
+
+      let text = this.add.text(
+        this.cameras.main.width / 2,
+        this.cameras.main.height / 2,
+        message,
+        { fontSize: '32px', fill: '#fff' }
+      );
+      text.setOrigin(0.5, 0.5);
+      text.depth = 3;
+      text.alpha = 0;
+
+      let button = this.add
+        .text(
+          this.cameras.main.width / 2,
+          this.cameras.main.height / 2 + 200,
+          'Click me to contiune!',
+          {
+            fontSize: '32px',
+            fill: '#000',
+            backgroundColor: '#fff',
+          }
+        )
+        .setInteractive();
+      button.setOrigin(0.5, 0.5);
+      button.depth = 4;
+      button.alpha = 0;
+
+      this.add.tween({
+        targets: [renderT, dialog, text, button],
+        duration: 750,
+        alpha: { from: 0, to: 1 },
+      });
+
+      return [renderT, dialog, text, button];
+    };
+    popup = true;
+    popupItems = screen('Welcome to ');
 
     const setUpMap = () => {
       // Set up field
@@ -281,65 +337,13 @@ class GameScene extends Phaser.Scene {
           }
         }
 
-        const screen = (message) => {
-          let renderT = this.add.renderTexture(
-            0,
-            0,
-            this.cameras.main.width,
-            this.cameras.main.height
-          );
-          renderT.alpha = 0.7;
-          renderT.depth = 1;
-
-          let dialog = this.add.image(
-            this.cameras.main.width / 2,
-            this.cameras.main.height / 2,
-            'background'
-          );
-          dialog.depth = 2;
-          dialog.alpha = 0;
-
-          let text = this.add.text(
-            this.cameras.main.width / 2,
-            this.cameras.main.height / 2,
-            message,
-            { fontSize: '32px', fill: '#fff' }
-          );
-          text.setOrigin(0.5, 0.5);
-          text.depth = 3;
-          text.alpha = 0;
-
-          let button = this.add
-            .text(
-              this.cameras.main.width / 2,
-              this.cameras.main.height / 2 + 200,
-              'Click me to contiune!',
-              {
-                fontSize: '32px',
-                fill: '#000',
-                backgroundColor: '#fff',
-              }
-            )
-            .setInteractive();
-          button.setOrigin(0.5, 0.5);
-          button.depth = 4;
-          button.alpha = 0;
-
-          this.add.tween({
-            targets: [renderT, dialog, text, button],
-            duration: 750,
-            alpha: { from: 0, to: 1 },
-          });
-
-          return [renderT, dialog, text, button];
-        };
-
         // Add req to level up. If they get enough they lose a life & reset level.
+        // TODO: Fix req to levelup.
         const reqToLevelup = level * 2 + 100;
         if (score >= reqToLevelup) {
           if (level === 3) {
             popup = true;
-            leaderboard = leaderboard.concat(`\nYou: ${score}`)
+            leaderboard = leaderboard.concat(`\nYou: ${score}`);
             popupItems = screen(`You win!\n${leaderboard}`);
 
             // Reset game.
@@ -377,7 +381,9 @@ class GameScene extends Phaser.Scene {
           } else {
             // Show you lost screen.
             popup = true;
-            popupItems = screen(`You didn't score high enough!\nYou lost a life...`);
+            popupItems = screen(
+              `You didn't score high enough!\nYou lost a life...`
+            );
 
             lives--;
             livesText.setText(`Lives ${lives}`);
@@ -388,7 +394,7 @@ class GameScene extends Phaser.Scene {
         }
       } catch (e) {
         // Fix errors later.
-        console.log(e);
+        // console.log(e);
       }
     });
   }
