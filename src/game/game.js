@@ -33,7 +33,7 @@ class GameScene extends Phaser.Scene {
     this.load.image('background', 'game/assets/background.png');
     this.load.image('gameBackground', 'game/assets/gameBackground.jpg');
   }
-  
+
   create() {
     const background = this.add.image(300, 300, 'gameBackground');
     background.alpha = 0.9;
@@ -41,6 +41,7 @@ class GameScene extends Phaser.Scene {
     const gems = ['blue', 'green', 'red', 'orange'];
 
     let popup = false;
+    let popupItems;
 
     const rows = 6;
     const cols = 6;
@@ -102,7 +103,12 @@ class GameScene extends Phaser.Scene {
     // On click of gem
     this.input.on('pointerdown', (pointer, gameObject) => {
       if (popup) {
-        console.log('operkjh');
+        if (gameObject[0].text) {
+          popup = false;
+          for(let i = 0; i < popupItems.length; i++) {
+            popupItems[i].destroy();
+          }
+        }
         return;
       }
       try {
@@ -239,7 +245,7 @@ class GameScene extends Phaser.Scene {
                   this.tweens.add({
                     targets: map[i][lowestIndex].sprite,
                     y: map[i][lowestIndex].yCord,
-                    duration: 250,
+                    duration: 500,
                     ease: 'Sine.easeIn',
                   });
                 }
@@ -316,23 +322,27 @@ class GameScene extends Phaser.Scene {
             text.depth = 3;
             text.alpha = 0;
 
-            let button = this.add.text(
-              this.cameras.main.width / 2,
-              this.cameras.main.height / 2 + 200,
-              'Click me to contiune!',
-              {
-                fontSize: '32px',
-                fill: '#fff',
-                backgroundColor: '#000',
-              }
-            );
+            let button = this.add
+              .text(
+                this.cameras.main.width / 2,
+                this.cameras.main.height / 2 + 200,
+                'Click me to contiune!',
+                {
+                  fontSize: '32px',
+                  fill: '#fff',
+                  backgroundColor: '#000',
+                }
+              )
+              .setInteractive();
             button.setOrigin(0.5, 0.5);
             button.depth = 4;
             button.alpha = 0;
 
+            popupItems = [renderT, dialog, text, button];
+
             this.add.tween({
               targets: [renderT, dialog, text, button],
-              duration: 1500,
+              duration: 750,
               alpha: { from: 0, to: 1 },
             });
 
