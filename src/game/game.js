@@ -17,7 +17,7 @@ const config = {
       gravity: { y: 200 },
     },
   },
-  backgroundColor: '#18216D',
+  backgroundColor: '#fff',
 };
 
 class GameScene extends Phaser.Scene {
@@ -30,10 +30,17 @@ class GameScene extends Phaser.Scene {
     this.load.image('green', 'game/assets/green.png');
     this.load.image('red', 'game/assets/red.png');
     this.load.image('orange', 'game/assets/orange.png');
+    this.load.image('background', 'game/assets/background.png');
+    this.load.image('gameBackground', 'game/assets/gameBackground.jpg');
   }
-
+  
   create() {
+    const background = this.add.image(300, 300, 'gameBackground');
+    background.alpha = 0.9;
+
     const gems = ['blue', 'green', 'red', 'orange'];
+
+    let popup = false;
 
     const rows = 6;
     const cols = 6;
@@ -94,6 +101,10 @@ class GameScene extends Phaser.Scene {
 
     // On click of gem
     this.input.on('pointerdown', (pointer, gameObject) => {
+      if (popup) {
+        console.log('operkjh');
+        return;
+      }
       try {
         // x = col (x-axis, straight up)
         // y = row
@@ -266,9 +277,6 @@ class GameScene extends Phaser.Scene {
         const reqToLevelup = level * 2 + 1000;
         if (score >= reqToLevelup) {
           if (level === 3) {
-            // Show you win screen
-
-
             // Reset game.
             level = 1;
             levelText.setText(`Level ${level}`);
@@ -278,6 +286,56 @@ class GameScene extends Phaser.Scene {
             scoreText.setText(`Score ${score}`);
             map = setUpMap();
           } else {
+            popup = true;
+
+            // Show you win screen
+            let renderT = this.add.renderTexture(
+              0,
+              0,
+              this.cameras.main.width,
+              this.cameras.main.height
+            );
+            renderT.alpha = 0.7;
+            renderT.depth = 1;
+
+            let dialog = this.add.image(
+              this.cameras.main.width / 2,
+              this.cameras.main.height / 2,
+              'background'
+            );
+            dialog.depth = 2;
+            dialog.alpha = 0;
+
+            let text = this.add.text(
+              this.cameras.main.width / 2,
+              this.cameras.main.height / 2,
+              'Level Up!',
+              { fontSize: '32px', fill: '#fff' }
+            );
+            text.setOrigin(0.5, 0.5);
+            text.depth = 3;
+            text.alpha = 0;
+
+            let button = this.add.text(
+              this.cameras.main.width / 2,
+              this.cameras.main.height / 2 + 200,
+              'Click me to contiune!',
+              {
+                fontSize: '32px',
+                fill: '#fff',
+                backgroundColor: '#000',
+              }
+            );
+            button.setOrigin(0.5, 0.5);
+            button.depth = 4;
+            button.alpha = 0;
+
+            this.add.tween({
+              targets: [renderT, dialog, text, button],
+              duration: 1500,
+              alpha: { from: 0, to: 1 },
+            });
+
             // Show level up screen.
             level++;
             levelText.setText(`Level ${level}`);
