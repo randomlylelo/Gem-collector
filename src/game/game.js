@@ -314,8 +314,8 @@ class GameScene extends Phaser.Scene {
               'Click me to contiune!',
               {
                 fontSize: '32px',
-                fill: '#fff',
-                backgroundColor: '#000',
+                fill: '#000',
+                backgroundColor: '#fff',
               }
             )
             .setInteractive();
@@ -333,7 +333,7 @@ class GameScene extends Phaser.Scene {
         };
 
         // Add req to level up. If they get enough they lose a life & reset level.
-        const reqToLevelup = level * 2 + 1000;
+        const reqToLevelup = level * 2 + 10000;
         if (score >= reqToLevelup) {
           if (level === 3) {
             popup = true;
@@ -359,21 +359,30 @@ class GameScene extends Phaser.Scene {
             map = setUpMap();
           }
         } else {
-          if (lives === 0) {
+          if (lives === 1) {
             // Game over.
             popup = true;
-            popupItems = screen('Game Over!');
+            popupItems = screen('Game Over!\nRestarting...');
+
+            level = 1;
+            levelText.setText(`Level ${level}`);
+            lives = 5;
+            livesText.setText(`Lives ${lives}`);
+            score = 0;
+            scoreText.setText(`Score ${score}`);
+            map = setUpMap();
           } else {
             // Show you lost screen.
             popup = true;
-            popupItems = screen('You didn\'t score high enough!\nYou lost a life...');
+            popupItems = screen(`You didn't score high enough!\nYou lost a life...`);
 
             lives--;
             livesText.setText(`Lives ${lives}`);
+            score = 0;
+            scoreText.setText(`Score ${score}`);
+            map = setUpMap();
           }
         }
-
-        // Show congrats & level up screen
       } catch (e) {
         // Fix errors later.
         console.log(e);
