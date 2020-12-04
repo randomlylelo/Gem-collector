@@ -105,7 +105,7 @@ class GameScene extends Phaser.Scene {
       if (popup) {
         if (gameObject[0].text) {
           popup = false;
-          for(let i = 0; i < popupItems.length; i++) {
+          for (let i = 0; i < popupItems.length; i++) {
             popupItems[i].destroy();
           }
         }
@@ -279,10 +279,66 @@ class GameScene extends Phaser.Scene {
           }
         }
 
+        const screen = (message) => {
+          let renderT = this.add.renderTexture(
+            0,
+            0,
+            this.cameras.main.width,
+            this.cameras.main.height
+          );
+          renderT.alpha = 0.7;
+          renderT.depth = 1;
+
+          let dialog = this.add.image(
+            this.cameras.main.width / 2,
+            this.cameras.main.height / 2,
+            'background'
+          );
+          dialog.depth = 2;
+          dialog.alpha = 0;
+
+          let text = this.add.text(
+            this.cameras.main.width / 2,
+            this.cameras.main.height / 2,
+            message,
+            { fontSize: '32px', fill: '#fff' }
+          );
+          text.setOrigin(0.5, 0.5);
+          text.depth = 3;
+          text.alpha = 0;
+
+          let button = this.add
+            .text(
+              this.cameras.main.width / 2,
+              this.cameras.main.height / 2 + 200,
+              'Click me to contiune!',
+              {
+                fontSize: '32px',
+                fill: '#fff',
+                backgroundColor: '#000',
+              }
+            )
+            .setInteractive();
+          button.setOrigin(0.5, 0.5);
+          button.depth = 4;
+          button.alpha = 0;
+
+          this.add.tween({
+            targets: [renderT, dialog, text, button],
+            duration: 750,
+            alpha: { from: 0, to: 1 },
+          });
+
+          return [renderT, dialog, text, button];
+        };
+
         // Add req to level up. If they get enough they lose a life & reset level.
         const reqToLevelup = level * 2 + 1000;
         if (score >= reqToLevelup) {
           if (level === 3) {
+            popup = true;
+            popupItems = screen('You win!');
+
             // Reset game.
             level = 1;
             levelText.setText(`Level ${level}`);
@@ -293,58 +349,7 @@ class GameScene extends Phaser.Scene {
             map = setUpMap();
           } else {
             popup = true;
-
-            // Show you win screen
-            let renderT = this.add.renderTexture(
-              0,
-              0,
-              this.cameras.main.width,
-              this.cameras.main.height
-            );
-            renderT.alpha = 0.7;
-            renderT.depth = 1;
-
-            let dialog = this.add.image(
-              this.cameras.main.width / 2,
-              this.cameras.main.height / 2,
-              'background'
-            );
-            dialog.depth = 2;
-            dialog.alpha = 0;
-
-            let text = this.add.text(
-              this.cameras.main.width / 2,
-              this.cameras.main.height / 2,
-              'Level Up!',
-              { fontSize: '32px', fill: '#fff' }
-            );
-            text.setOrigin(0.5, 0.5);
-            text.depth = 3;
-            text.alpha = 0;
-
-            let button = this.add
-              .text(
-                this.cameras.main.width / 2,
-                this.cameras.main.height / 2 + 200,
-                'Click me to contiune!',
-                {
-                  fontSize: '32px',
-                  fill: '#fff',
-                  backgroundColor: '#000',
-                }
-              )
-              .setInteractive();
-            button.setOrigin(0.5, 0.5);
-            button.depth = 4;
-            button.alpha = 0;
-
-            popupItems = [renderT, dialog, text, button];
-
-            this.add.tween({
-              targets: [renderT, dialog, text, button],
-              duration: 750,
-              alpha: { from: 0, to: 1 },
-            });
+            popupItems = screen('Level Up!');
 
             // Show level up screen.
             level++;
@@ -356,8 +361,13 @@ class GameScene extends Phaser.Scene {
         } else {
           if (lives === 0) {
             // Game over.
+            popup = true;
+            popupItems = screen('Game Over!');
           } else {
             // Show you lost screen.
+            popup = true;
+            popupItems = screen('You didn\'t score high enough!\nYou lost a life...');
+
             lives--;
             livesText.setText(`Lives ${lives}`);
           }
