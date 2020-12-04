@@ -43,6 +43,8 @@ class GameScene extends Phaser.Scene {
     let popup = false;
     let popupItems;
 
+    let leaderboard = "Leaderboards (not ranked):\nLeo: 45065\nLuis: 230493\nGianni: 344356";
+
     const rows = 6;
     const cols = 6;
 
@@ -333,11 +335,12 @@ class GameScene extends Phaser.Scene {
         };
 
         // Add req to level up. If they get enough they lose a life & reset level.
-        const reqToLevelup = level * 2 + 10000;
+        const reqToLevelup = level * 2 + 100;
         if (score >= reqToLevelup) {
           if (level === 3) {
             popup = true;
-            popupItems = screen('You win!');
+            leaderboard = leaderboard.concat(`\nYou: ${score}`)
+            popupItems = screen(`You win!\n${leaderboard}`);
 
             // Reset game.
             level = 1;
